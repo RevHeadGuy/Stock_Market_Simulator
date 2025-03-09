@@ -1,6 +1,4 @@
-# Stock_Market_Simulator
-
-# **Stock Market Simulation in C++** 🚀
+# **Stock_Market_Simulator** 🚀
 
 This project simulates a **Stock Market Order Matching System** with **Multi-threading**, **Priority Queues**, and **Graph Algorithms** for **Market Analysis**.
 
@@ -66,19 +64,7 @@ dot -Tpng market_graph.dot -o market_graph.png
 
 ---
 
-## **💡 How to Run**
-### **1️⃣ Compile and Run the Code**
-```bash
-g++ stock_market_sim.cpp -o stock_market_sim -lpthread
-./stock_market_sim
-```
 
-### **2️⃣ Generate Market Graph Image**
-```bash
-dot -Tpng market_graph.dot -o market_graph.png
-```
-
----
 
 ## **🛠️ Future Improvements**
 🚀 **Implement AVL Tree for Order Book** – Faster lookup  
