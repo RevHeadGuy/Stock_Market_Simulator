@@ -5,6 +5,7 @@
 #include <fstream>
 #include <thread>
 #include <mutex>
+#include <limits>
 using namespace std;
 
 mutex orderMutex; // For multi-threaded order processing
@@ -90,6 +91,50 @@ void showMarketConnections() {
     }
 }
 
+// Dijkstra's Algorithm for Market Route Optimization
+void dijkstra(string startMarket) {
+    unordered_map<string, double> minCost;
+    for (auto &pair : marketGraph) {
+        minCost[pair.first] = numeric_limits<double>::max();
+    }
+    minCost[startMarket] = 0;
+    
+    priority_queue<pair<double, string>, vector<pair<double, string>>, greater<pair<double, string>>> pq;
+    pq.push({0, startMarket});
+    
+    while (!pq.empty()) {
+        auto [cost, market] = pq.top(); pq.pop();
+        if (cost > minCost[market]) continue;
+        
+        for (auto &neighbor : marketGraph[market]) {
+            double newCost = cost + neighbor.second;
+            if (newCost < minCost[neighbor.first]) {
+                minCost[neighbor.first] = newCost;
+                pq.push({newCost, neighbor.first});
+            }
+        }
+    }
+    
+    cout << "\nMinimum Transaction Fees from " << startMarket << " to other markets:\n";
+    for (auto &pair : minCost) {
+        cout << pair.first << " : " << (pair.second == numeric_limits<double>::max() ? -1 : pair.second) << "\n";
+    }
+}
+
+// Generate Graphviz DOT file for visualization
+void generateGraphvizFile() {
+    ofstream file("market_graph.dot");
+    file << "graph MarketGraph {\n";
+    for (auto &pair : marketGraph) {
+        for (auto &neighbor : pair.second) {
+            file << "    \"" << pair.first << "\" -- \"" << neighbor.first << "\" [label=\"" << neighbor.second << "\"];\n";
+        }
+    }
+    file << "}";
+    file.close();
+    cout << "\nGraphviz DOT file 'market_graph.dot' generated. Use 'dot -Tpng market_graph.dot -o market_graph.png' to visualize.\n";
+}
+
 int main() {
     thread orderThread(executeOrders);
     addOrder(1, "buy", 150.5, 10);
@@ -100,7 +145,12 @@ int main() {
     
     addMarketEdge("NYSE", "NASDAQ", 0.02);
     addMarketEdge("NASDAQ", "LSE", 0.03);
+    addMarketEdge("NYSE", "LSE", 0.05);
     showMarketConnections();
+    
+    dijkstra("NYSE");
+    
+    generateGraphvizFile();
     
     orderThread.join();
     return 0;
